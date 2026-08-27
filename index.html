@@ -225,6 +225,9 @@
   .room-block input,.room-block select{padding:7px 9px;font-size:14px}
   .cover-img{width:100%;height:auto;border-radius:12px;border:1px solid var(--line);display:block;margin:4px 0 16px;box-shadow:0 4px 18px rgba(13,27,51,.12)}
   .cover-lead{font-size:13px;color:var(--steel);text-align:center;margin-bottom:14px}
+  .btn-find{background:linear-gradient(135deg,#22285b 0%,#3d84c6 52%,#59c0e8 100%);color:#fff;border:none;font-size:16px;padding:15px;box-shadow:0 6px 16px rgba(61,132,198,.35);letter-spacing:.3px}
+  .btn-find:hover{filter:brightness(1.06);box-shadow:0 8px 20px rgba(61,132,198,.45)}
+  .btn-find svg{stroke:#fff}
   @media(max-width:560px){
     .room-row{flex-wrap:wrap}.room-row .grow{flex-basis:100%}
     .teacher-name{font-size:23px}.timer{font-size:48px}
@@ -261,7 +264,7 @@
   <!-- SETUP -->
   <section class="view" id="view-setup">
     <div class="page-band" style="background:#22285b;color:#fff"><span class="pb-val">Excellence</span><span class="pb-ph">The bar is the bar</span></div>
-    <button class="btn btn-ghost btn-block" id="openSched" style="margin-bottom:16px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" style="vertical-align:-3px;margin-right:7px"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>Find teachers and rooms</button>
+    <button class="btn btn-find btn-block" id="openSched" style="margin-bottom:16px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" style="vertical-align:-3px;margin-right:7px"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>Find teachers and rooms</button>
 
     <div class="card">
       <h2>The clock</h2>
@@ -337,7 +340,7 @@
       <div class="roles-strip" id="rolesStrip"></div>
       <label>Non-negotiables (met all?)</label>
       <div id="nnList" style="margin-bottom:16px"></div>
-      <label>Watching for the six indicators. Note the score you are leaning toward.</label>
+      <label>Observing the six indicators. Note the score you are leaning toward.</label>
       <div id="indRef" style="margin-bottom:6px"></div>
       <div class="glow-label"><span class="glow-dot"></span><label style="margin:0">Glow, before you leave</label></div>
       <textarea id="glowInput" placeholder="One thing that went well. Name the kid or the move."></textarea>
@@ -549,7 +552,7 @@ function renderMath(){
   const per=total/n;
   const observe=Math.max(3,Math.round(per-4));
   roomSeconds=observe*60;
-  let html='<b>'+total+' min &divide; '+n+' rooms = '+(Math.round(per*10)/10)+' min each.</b> About '+observe+' min watching, ~3 min in the circle, ~1 min to the next door.';
+  let html='<b>'+total+' min &divide; '+n+' rooms = '+(Math.round(per*10)/10)+' min each.</b> About '+observe+' min observing, ~3 min in the circle, ~1 min to the next door.';
   if(observe<5) html+='<span class="math-warn">Tight. A full six-indicator circle wants 3 to 4 minutes. For a real read in each room, consider dropping to 4 rooms.</span>';
   document.getElementById('mathLine').innerHTML=html;
 }
