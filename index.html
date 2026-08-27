@@ -228,6 +228,8 @@
   .btn-find{background:linear-gradient(135deg,#22285b 0%,#3d84c6 52%,#59c0e8 100%);color:#fff;border:none;font-size:16px;padding:15px;box-shadow:0 6px 16px rgba(61,132,198,.35);letter-spacing:.3px}
   .btn-find:hover{filter:brightness(1.06);box-shadow:0 8px 20px rgba(61,132,198,.45)}
   .btn-find svg{stroke:#fff}
+  .wt-badge{display:none;background:var(--sky);color:#fff;font-size:12px;font-weight:700;border-radius:20px;padding:5px 12px;white-space:nowrap;flex:none}
+  .wt-close{font-size:16px;font-weight:700;color:var(--navy);margin-bottom:12px}
   @media(max-width:560px){
     .room-row{flex-wrap:wrap}.room-row .grow{flex-basis:100%}
     .teacher-name{font-size:23px}.timer{font-size:48px}
@@ -243,6 +245,7 @@
       <h1>Strong Start Norming Walk</h1>
       <div class="vibe">Collegiate &middot; <b>The bar is the bar.</b> Every kid is known and loved.</div>
     </div>
+    <span class="wt-badge" id="wtBadge"></span>
   </div>
 </header>
 
@@ -263,6 +266,14 @@
 
   <!-- SETUP -->
   <section class="view" id="view-setup">
+    <div class="card">
+      <h2>This walkthrough</h2>
+      <p class="hint">Label this session so the record shows which walkthrough it was.</p>
+      <div class="row">
+        <div class="field" style="flex:1;margin-bottom:0"><label>Walkthrough number</label><input type="number" id="walkNo" value="1" min="1"></div>
+        <div class="field" style="flex:1;margin-bottom:0"><label>Date (optional)</label><input type="date" id="walkDate"></div>
+      </div>
+    </div>
     <div class="page-band" style="background:#22285b;color:#fff"><span class="pb-val">Excellence</span><span class="pb-ph">The bar is the bar</span></div>
     <button class="btn btn-find btn-block" id="openSched" style="margin-bottom:16px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" style="vertical-align:-3px;margin-right:7px"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>Find teachers and rooms</button>
 
@@ -399,6 +410,7 @@
   <!-- CLOSE -->
   <section class="view" id="view-close">
     <div class="page-band" style="background:#f9a11b;color:#14284b"><span class="pb-val">Fun</span><span class="pb-ph">Name the glows</span></div>
+    <div class="wt-close" id="wtClose"></div>
     <div class="card">
       <h2>Your reads</h2>
       <p class="hint">How you scored, room by room. This stays on your phone for your own calibration.</p>
@@ -517,6 +529,7 @@ let myName="";
 let glows={}, nonneg={}, ratings={}, prerate={};
 let visited={};
 let started=false;
+let walkNo='1', walkDate='';
 let current=0, indIdx=0;
 let secsLeft=0,running=false,tick=null,roomSeconds=0;
 let schedMode='content', schedPeriod='1', schedReturn='setup', detailTeacher=null;
@@ -819,6 +832,7 @@ document.getElementById('mgNext').addEventListener('click',()=>{
 // ---------- close ----------
 function goClose(){
   if(tick)clearInterval(tick);running=false;setStep('close');
+  document.getElementById('wtClose').textContent=walkLabel();
   let head='<tr><th>Teacher</th>'+INDICATORS.map(x=>'<th>'+x.n+'</th>').join('')+'<th>/6</th></tr>';
   let bd=rooms.map((r,i)=>{
     const arr=ratingArr(i);
@@ -837,12 +851,13 @@ function goClose(){
 }
 document.getElementById('backToWalk').addEventListener('click',()=>{setStep('live');loadObserve(current);});
 document.getElementById('copyGlows').addEventListener('click',()=>{
+  const header=walkLabel()+'\n\n';
   const lines=rooms.map((r,i)=>{
     const g=(glows[i]||'').trim()||'no glow captured';
     const mg=microgoals[i];
     return (r.teacher||('Room '+(i+1)))+' ('+r.dept+'): '+g+(mg?' | Microgoal: '+mg.c+' '+mg.t:'');
   }).join('\n');
-  navigator.clipboard.writeText(lines).then(()=>{const m=document.getElementById('copiedMsg');m.style.display='inline';setTimeout(()=>m.style.display='none',1800);});
+  navigator.clipboard.writeText(header+lines).then(()=>{const m=document.getElementById('copiedMsg');m.style.display='inline';setTimeout(()=>m.style.display='none',1800);});
 });
 
 let endArm=null;
@@ -856,6 +871,12 @@ function armEnd(btn){
 
 document.getElementById('coverStart').addEventListener('click',()=>{document.getElementById('steps').style.display='flex';setStep('setup');});
 
+function fmtDate(s){if(!s)return '';var p=s.split('-');var mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][parseInt(p[1])-1];return mo+' '+parseInt(p[2])+', '+p[0];}
+function walkLabel(){return 'Walkthrough '+(walkNo||'1')+(walkDate?' \u00b7 '+fmtDate(walkDate):'');}
+function updateWtBadge(){var b=document.getElementById('wtBadge');if(!b)return;b.textContent='Walkthrough '+(walkNo||'1');b.style.display='inline-block';}
+var _wn=document.getElementById('walkNo'); if(_wn)_wn.addEventListener('input',function(e){walkNo=e.target.value;updateWtBadge();});
+var _wd=document.getElementById('walkDate'); if(_wd)_wd.addEventListener('input',function(e){walkDate=e.target.value;});
+updateWtBadge();
 renderValueBadges();
 renderRooms();
 </script>
