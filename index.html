@@ -127,8 +127,8 @@
   .copied{color:var(--yes);font-size:13px;font-weight:700;margin-left:10px}
   .note{font-size:12px;color:var(--steel);margin-top:8px}
   /* schedule browser */
-  .values-ribbon{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;align-items:flex-end;margin:2px 0 16px}
-  .val-badge{height:66px;width:auto;display:block}
+  .values-ribbon{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;align-items:flex-end;margin:2px 0 16px}
+  .val-badge{height:44px;width:auto;display:block}
   .sched-tabs{display:flex;gap:8px;margin-bottom:14px}
   .sched-tab{flex:1;text-align:center;padding:10px 4px;border-radius:9px;font-size:13px;font-weight:700;background:#fff;color:var(--steel);border:1.5px solid var(--line);cursor:pointer}
   .sched-tab.active{background:var(--navy);color:#fff;border-color:var(--navy)}
@@ -624,6 +624,11 @@ function matchQ(t,q){
 }
 function roomsList(t){ const rs=[...new Set(t.periods.filter(p=>p.period!=='HR').map(p=>p.room))]; return rs.join(', '); }
 
+function periodsCovered(pstr){
+  if(String(pstr).indexOf('-')>-1){var a=String(pstr).split('-');var lo=parseInt(a[0]),hi=parseInt(a[1]);if(!isNaN(lo)&&!isNaN(hi)){var out=[];for(var k=lo;k<=hi;k++)out.push(String(k));return out;}}
+  return [String(pstr)];
+}
+function coversPeriod(pstr,target){return periodsCovered(pstr).indexOf(target)>-1;}
 function renderSched(){
   const q=document.getElementById('schedSearch').value.trim();
   const pick=document.getElementById('periodPick');
@@ -649,7 +654,7 @@ function renderSched(){
   } else {
     pick.innerHTML=PERIODS.map(p=>'<button class="pp '+(p===schedPeriod?'active':'')+'" data-p="'+p+'">'+p+'</button>').join('');
     pick.querySelectorAll('.pp').forEach(b=>b.addEventListener('click',()=>{schedPeriod=b.dataset.p;renderSched();}));
-    const inper=list.map(t=>{const e=t.periods.find(p=>p.period===schedPeriod);return e?{t,e}:null;}).filter(Boolean)
+    const inper=list.map(t=>{const e=t.periods.find(p=>coversPeriod(p.period,schedPeriod));return e?{t,e}:null;}).filter(Boolean)
       .sort((a,b)=>a.t.subject.localeCompare(b.t.subject)||a.t.name.localeCompare(b.t.name));
     body.innerHTML = inper.length ? inper.map(({t,e})=>
       '<div class="per-row" data-name="'+esc(t.name)+'"><div class="l"><div class="tn">'+esc(t.name)+'</div><div class="cs">'+esc(t.subject)+' &middot; '+esc(e.course)+'</div></div><div class="rm"><span>Room</span>'+esc(e.room)+'</div></div>'
@@ -670,9 +675,10 @@ function openDetail(name){
   document.getElementById('dName').textContent=t.name;
   document.getElementById('dSub').textContent=t.subject;
   const order={'1':1,'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'HR':8.5,'9':9};
-  const rowsp=[...t.periods].sort((a,b)=>(order[a.period]||99)-(order[b.period]||99));
+  const expanded=[]; t.periods.forEach(p=>periodsCovered(p.period).forEach(pp=>expanded.push({period:pp,room:p.room,course:p.course})));
+  expanded.sort((a,b)=>(order[a.period]||99)-(order[b.period]||99));
   document.getElementById('dTable').innerHTML='<tr><th>Period</th><th>Room</th><th style="text-align:left">Class</th></tr>'+
-    rowsp.map(p=>'<tr><td class="pd">'+esc(p.period)+'</td><td class="rm">'+esc(p.room)+'</td><td>'+esc(p.course)+'</td></tr>').join('');
+    expanded.map(p=>'<tr><td class="pd">'+esc(p.period)+'</td><td class="rm">'+esc(p.room)+'</td><td>'+esc(p.course)+'</td></tr>').join('');
   document.getElementById('dAdd').style.display='block';
   document.getElementById('dAddNote').textContent='';
   showView('view-detail');
