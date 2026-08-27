@@ -645,7 +645,7 @@ function renderValueBadges(){
   if(rib) rib.innerHTML=VALORDER.map(v=>'<img class="val-badge" src="'+VALBADGES[v[0]]+'" alt="'+v[1]+'">').join('');
   document.querySelectorAll('[data-vfooter]').forEach(f=>{f.innerHTML=VALORDER.map(v=>'<img class="vf-badge" src="'+VALBADGES[v[0]]+'" alt="'+v[1]+'">').join('');});
 }
-function showView(id){document.querySelectorAll('section.view').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);}
+function showView(id){var cur=document.querySelector('section.view.active');var same=!!cur&&cur.id===id;document.querySelectorAll('section.view').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');if(!same)window.scrollTo(0,0);}
 
 // ---------- setup ----------
 function renderMath(){
@@ -666,7 +666,7 @@ function roomTeachers(r){
   if(r.period){arr=arr.filter(function(t){return t.periods.some(function(p){return coversPeriod(p.period,r.period);});});}
   return arr.map(function(t){return t.name;});
 }
-function autofillRoom(i){var r=rooms[i];if(!r.teacher||!r.period)return;var t=null;for(var k=0;k<SCHEDULE.teachers.length;k++){if(SCHEDULE.teachers[k].name===r.teacher){t=SCHEDULE.teachers[k];break;}}if(!t)return;for(var j=0;j<t.periods.length;j++){if(coversPeriod(t.periods[j].period,r.period)){r.room=t.periods[j].room;return;}}}
+function autofillRoom(i){var r=rooms[i];if(!r.teacher)return;var t=null;for(var k=0;k<SCHEDULE.teachers.length;k++){if(SCHEDULE.teachers[k].name===r.teacher){t=SCHEDULE.teachers[k];break;}}if(!t)return;if(r.period){for(var j=0;j<t.periods.length;j++){if(coversPeriod(t.periods[j].period,r.period)){r.room=t.periods[j].room;return;}}}var counts={},best=null,bestN=0;for(var m=0;m<t.periods.length;m++){var rm=t.periods[m].room;if(!rm)continue;counts[rm]=(counts[rm]||0)+1;if(counts[rm]>bestN){bestN=counts[rm];best=rm;}}if(best)r.room=best;}
 function renderRooms(){
   const list=document.getElementById('roomList'); list.innerHTML='';
   const PSEL=['','1','2','3','4','5','6','7','8','9','HR'];
