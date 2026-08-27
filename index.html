@@ -661,6 +661,11 @@ function renderMath(){
 }
 const ROOMSTYLE=[{bg:'#59c0e8',fg:'#14284b'},{bg:'#c2d501',fg:'#14284b'},{bg:'#f9a11b',fg:'#14284b'},{bg:'#ee4028',fg:'#fff'},{bg:'#22285b',fg:'#fff'}];
 function roomStyle(i){return ROOMSTYLE[i%ROOMSTYLE.length];}
+function roomTeachers(r){
+  var arr=SCHEDULE.teachers.filter(function(t){return t.subject===r.dept;});
+  if(r.period){arr=arr.filter(function(t){return t.periods.some(function(p){return coversPeriod(p.period,r.period);});});}
+  return arr.map(function(t){return t.name;});
+}
 function autofillRoom(i){var r=rooms[i];if(!r.teacher||!r.period)return;var t=null;for(var k=0;k<SCHEDULE.teachers.length;k++){if(SCHEDULE.teachers[k].name===r.teacher){t=SCHEDULE.teachers[k];break;}}if(!t)return;for(var j=0;j<t.periods.length;j++){if(coversPeriod(t.periods[j].period,r.period)){r.room=t.periods[j].room;return;}}}
 function renderRooms(){
   const list=document.getElementById('roomList'); list.innerHTML='';
@@ -668,7 +673,7 @@ function renderRooms(){
   rooms.forEach((r,i)=>{
     if(!r.roles) r.roles={video:'',photo:'',coach:''};
     const cs=roomStyle(i);
-    const deptTeachers=SCHEDULE.teachers.filter(t=>t.subject===r.dept).map(t=>t.name);
+    const deptTeachers=roomTeachers(r);
     const inList=deptTeachers.indexOf(r.teacher)>-1;
     const custom=!!r._custom||(r.teacher&&!inList);
     let teacherHTML;
@@ -697,8 +702,8 @@ function renderRooms(){
   });
   list.querySelectorAll('[data-i]').forEach(el=>el.addEventListener('input',e=>{rooms[e.target.dataset.i][e.target.dataset.k]=e.target.value;}));
   list.querySelectorAll('[data-tsel]').forEach(sel=>sel.addEventListener('change',e=>{const i=e.target.dataset.tsel,v=e.target.value;if(v==='__other__'){rooms[i]._custom=true;rooms[i].teacher='';renderRooms();}else{rooms[i].teacher=v;rooms[i]._custom=false;autofillRoom(i);renderRooms();}}));
-  list.querySelectorAll('[data-psel]').forEach(sel=>sel.addEventListener('change',e=>{const i=e.target.dataset.psel;rooms[i].period=e.target.value;autofillRoom(i);renderRooms();}));
-  list.querySelectorAll('[data-dsel]').forEach(sel=>sel.addEventListener('change',e=>{const i=e.target.dataset.dsel;rooms[i].dept=e.target.value;if(!rooms[i]._custom){const dt=SCHEDULE.teachers.filter(t=>t.subject===rooms[i].dept).map(t=>t.name);if(dt.indexOf(rooms[i].teacher)===-1)rooms[i].teacher='';}renderRooms();renderMath();}));
+  list.querySelectorAll('[data-psel]').forEach(sel=>sel.addEventListener('change',e=>{const i=e.target.dataset.psel;rooms[i].period=e.target.value;if(!rooms[i]._custom){const dt=roomTeachers(rooms[i]);if(rooms[i].teacher&&dt.indexOf(rooms[i].teacher)===-1)rooms[i].teacher='';}autofillRoom(i);renderRooms();}));
+  list.querySelectorAll('[data-dsel]').forEach(sel=>sel.addEventListener('change',e=>{const i=e.target.dataset.dsel;rooms[i].dept=e.target.value;if(!rooms[i]._custom){const dt=roomTeachers(rooms[i]);if(dt.indexOf(rooms[i].teacher)===-1)rooms[i].teacher='';}renderRooms();renderMath();}));
   list.querySelectorAll('[data-fromlist]').forEach(b=>b.addEventListener('click',e=>{const i=e.currentTarget.dataset.fromlist;rooms[i]._custom=false;rooms[i].teacher='';renderRooms();}));
   list.querySelectorAll('[data-ri]').forEach(el=>el.addEventListener('input',e=>{const i=e.target.dataset.ri,k=e.target.dataset.rk;if(!rooms[i].roles)rooms[i].roles={video:'',photo:'',coach:''};rooms[i].roles[k]=e.target.value;}));
   list.querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click',e=>{if(rooms.length<=1)return;rooms.splice(parseInt(e.currentTarget.dataset.del),1);renderRooms();renderMath();}));
