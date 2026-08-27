@@ -165,7 +165,7 @@
   .sched-table td.pd{background:#fbfcfe;font-weight:700;color:var(--navy);text-align:center}
   .sched-table td.rm{font-weight:700;color:var(--navy);white-space:nowrap;width:78px}
   .mg-chips{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
-  .mg-chip{font-size:13px;font-weight:700;border:1.5px solid var(--line);background:#fff;color:var(--steel);border-radius:8px;padding:8px 11px;cursor:pointer;min-width:34px}
+  .mg-chip{font-size:13px;font-weight:700;border:1.5px solid var(--line);background:#fff;color:var(--steel);border-radius:8px;padding:8px 11px;cursor:pointer;line-height:1.2}
   .mg-chip.cur{background:var(--navy);color:#fff;border-color:var(--navy)}
   .mg-chip.flag{border-color:var(--not);color:var(--not)}
   .mg-chip.cur.flag{background:var(--not);border-color:var(--not);color:#fff}
@@ -230,6 +230,21 @@
   .btn-find svg{stroke:#fff}
   .wt-badge{display:none;background:var(--sky);color:#fff;font-size:12px;font-weight:700;border-radius:20px;padding:5px 12px;white-space:nowrap;flex:none}
   .wt-close{font-size:16px;font-weight:700;color:var(--navy);margin-bottom:12px}
+  .arch-row{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid var(--line);border-radius:9px;padding:10px 12px;margin-bottom:8px}
+  .arch-meta .arch-t{font-size:15px;font-weight:700;color:var(--navy)}
+  .arch-meta .arch-s{font-size:12px;color:var(--steel);margin-top:2px}
+  .arch-actions{display:flex;align-items:center;gap:8px;flex:none}
+  .arch-del{background:none;border:none;color:var(--steel-light);font-size:20px;cursor:pointer;line-height:1}
+  .arch-del:hover{color:var(--not)}
+  .kidbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#fbfcfe;border:1px solid var(--line);border-radius:9px;padding:8px 11px;margin-bottom:14px}
+  .kidbar label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--steel);margin:0}
+  .kidbar input{width:92px;padding:7px 9px;font-size:15px}
+  .kid90{font-size:13px;font-weight:700;color:var(--sky)}
+  .mg-ind-title{margin:8px 0}
+  .mg-ind-title .mgi-t{font-size:15px;font-weight:700;color:var(--navy)}
+  .mg-ind-title .mgi-l{font-size:12px;color:var(--steel);margin-top:2px}
+  .link-btn{background:none;border:none;color:var(--sky);font-weight:700;font-size:12px;cursor:pointer;padding:5px 0 0;text-decoration:underline}
+  .credit{text-align:center;font-size:12px;color:var(--steel);font-style:italic;padding:18px 0 6px}
   @media(max-width:560px){
     .room-row{flex-wrap:wrap}.room-row .grow{flex-basis:100%}
     .teacher-name{font-size:23px}.timer{font-size:48px}
@@ -266,6 +281,7 @@
 
   <!-- SETUP -->
   <section class="view" id="view-setup">
+    <div class="page-band" style="background:#22285b;color:#fff"><span class="pb-val">Excellence</span><span class="pb-ph">The bar is the bar</span></div>
     <div class="card">
       <h2>This walkthrough</h2>
       <p class="hint">Label this session so the record shows which walkthrough it was.</p>
@@ -273,10 +289,14 @@
         <div class="field" style="flex:1;margin-bottom:0"><label>Walkthrough number</label><input type="number" id="walkNo" value="1" min="1"></div>
         <div class="field" style="flex:1;margin-bottom:0"><label>Date (optional)</label><input type="date" id="walkDate"></div>
       </div>
-      <p class="note" style="margin-top:10px">Your work saves on this device automatically, so you can close the app and pick up where you left off. Start fresh when you begin a new walkthrough.</p>
-      <button class="btn btn-ghost btn-sm" id="freshBtn">Start fresh (clear saved data)</button>
+      <p class="note" style="margin-top:10px">Your work saves on this device automatically. When you finish, save it and start a new one for next week. Past weeks stay saved below.</p>
+      <button class="btn btn-ghost btn-sm" id="freshBtn">Save and start a new walkthrough</button>
     </div>
-    <div class="page-band" style="background:#22285b;color:#fff"><span class="pb-val">Excellence</span><span class="pb-ph">The bar is the bar</span></div>
+    <div class="card" id="archiveCard" style="display:none">
+      <h2>Saved walkthroughs</h2>
+      <p class="hint">Past walkthroughs saved on this device. Open one to review or keep going.</p>
+      <div id="archiveList"></div>
+    </div>
     <button class="btn btn-find btn-block" id="openSched" style="margin-bottom:16px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" style="vertical-align:-3px;margin-right:7px"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>Find teachers and rooms</button>
 
     <div class="card">
@@ -284,7 +304,7 @@
       <p class="hint">Team moves together, one video, one photo, one coach. After each room you circle up and reveal your reads on all six indicators.</p>
       <div class="row">
         <div class="field" style="flex:1"><label>Total minutes</label><input type="number" id="totalMin" value="40" min="10" max="120"></div>
-        <div class="field" style="flex:1"><label>Rooms</label><input type="number" id="roomCount" value="4" readonly style="background:#f4f6f9;color:var(--steel)"></div>
+        <div class="field" style="flex:1"><label>Rooms</label><input type="number" id="roomCount" value="4" min="1"></div>
       </div>
       <div class="math-line" id="mathLine"></div>
     </div>
@@ -341,7 +361,8 @@
     <div class="card">
       <div class="live-head"><span class="of" id="obRoomOf"></span><span id="obBadge"></span></div>
       <div class="teacher-name" id="obTeacher"></div>
-      <div class="meta-strip"><span class="dept" id="obDept"></span><span class="rm" id="obRoom"></span></div>
+      <div class="meta-strip"><span class="dept" id="obDept"></span><span class="rm" id="obPeriod"></span><span class="rm" id="obRoom"></span></div>
+      <div class="kidbar"><label>Students in class</label><input type="number" id="obKids" min="0" placeholder="e.g. 28"><span class="kid90" id="obKid90"></span></div>
       <div class="timer-box">
         <div class="timer" id="timer">0:00</div>
         <div class="timer-label" id="timerLabel">Time in room</div>
@@ -368,19 +389,21 @@
     <div class="page-band" style="background:#59c0e8;color:#14284b"><span class="pb-val">Team</span><span class="pb-ph">We reveal and norm together</span></div>
     <button class="back-room" id="backRoom">&larr; Back to the room</button>
     <div class="card">
+      <div class="kidbar"><label>Students in class</label><input type="number" id="ckKids" min="0" placeholder="e.g. 28"><span class="kid90" id="ckKid90"></span></div>
       <div class="circle-top"><span class="who" id="circleWho"></span><div class="dots" id="dots"></div></div>
       <div class="ind-head"><div class="n" id="indN"></div><div class="title" id="indTitle"></div><div class="look" id="indLook"></div></div>
       <div class="lean" id="leanBar"></div>
       <div class="reveal" id="reveal"><div class="prompt">Tap your read, then hold it up</div></div>
       <div class="rate-btns">
-        <button class="rate-yes" id="btnYes">Yes &middot; 1</button>
-        <button class="rate-not" id="btnNot">Not Yet &middot; 0</button>
+        <button type="button" class="rate-yes" id="btnYes">Yes &middot; 1</button>
+        <button type="button" class="rate-not" id="btnNot">Not Yet &middot; 0</button>
       </div>
       <div class="norm-cue">Reveal together. Talk through any split before you move on.</div>
       <div class="circle-nav">
         <button class="btn btn-ghost" id="prevInd" style="flex:1">Previous</button>
         <button class="btn btn-primary" id="nextInd" style="flex:2">Next indicator</button>
       </div>
+      <button class="btn btn-ghost btn-sm btn-block" id="skipMg" style="margin-top:10px">Skip to the microgoal</button>
     </div>
     <button class="end-walk" id="endWalkCircle">End the walk</button>
     <div class="values-footer" data-vfooter></div>
@@ -397,6 +420,7 @@
       <div id="mgSuggest" class="note"></div>
       <div class="mg-chips" id="mgChips"></div>
       <div class="mg-selected" id="mgSelected" style="display:none"></div>
+      <div class="mg-ind-title" id="mgIndTitle"></div>
       <div class="mg-list" id="mgList"></div>
       <div class="nav-label">Go to a room</div>
       <div class="room-nav" id="roomNavMg"></div>
@@ -438,6 +462,7 @@
     <button class="btn btn-ghost btn-block" id="backToWalk">Back to the walk</button>
     <div class="values-footer" data-vfooter></div>
   </section>
+  <div class="credit">Designed with love by Sharmaine Lewis</div>
 </div>
 <script>
 const SCHEDULE = {"subjects": ["Math", "Science", "English", "History", "Self-Contained", "VPA", "Tech", "Phys Ed", "World Language", "College & Career"], "teachers": [{"name": "Ankrah, Emmanuel", "subject": "Math", "periods": [{"period": "2", "room": "313", "course": "Algebra II Found"}, {"period": "5", "room": "308", "course": "Algebra II"}, {"period": "6", "room": "308", "course": "Algebra II Found"}, {"period": "7", "room": "308", "course": "Algebra II"}, {"period": "HR", "room": "314", "course": "Homeroom"}, {"period": "9", "room": "308", "course": "Algebra II"}]}, {"name": "Avery, Rodney", "subject": "Math", "periods": [{"period": "2", "room": "308", "course": "Algebra II"}, {"period": "3", "room": "308", "course": "College Algebra II (DE)"}, {"period": "5", "room": "308", "course": "Algebra II"}, {"period": "7", "room": "308", "course": "Algebra II"}, {"period": "HR", "room": "308", "course": "Homeroom"}, {"period": "9", "room": "308", "course": "Algebra II"}]}, {"name": "Car, Luisa", "subject": "Math", "periods": [{"period": "1-2", "room": "418", "course": "Algebra I Found"}, {"period": "2-3", "room": "419", "course": "Algebra I"}, {"period": "4-5", "room": "419", "course": "Algebra I"}, {"period": "6-7", "room": "419", "course": "Algebra I Found"}, {"period": "HR", "room": "412", "course": "Homeroom"}]}, {"name": "Cruz, Hecmar", "subject": "Math", "periods": [{"period": "2", "room": "214", "course": "Statistics"}, {"period": "3", "room": "214", "course": "Statistics"}, {"period": "6", "room": "211", "course": "Study Hall"}, {"period": "7", "room": "211", "course": "Statistics Found"}, {"period": "HR", "room": "211", "course": "Homeroom"}, {"period": "9", "room": "213", "course": "Statistics"}]}, {"name": "Dinger, Anika", "subject": "Math", "periods": [{"period": "1-2", "room": "421", "course": "Algebra I"}, {"period": "4-5", "room": "418", "course": "Algebra I"}, {"period": "6-7", "room": "418", "course": "Algebra I"}, {"period": "HR", "room": "419", "course": "Homeroom"}]}, {"name": "Esteban, Joshua", "subject": "Math", "periods": [{"period": "1-2", "room": "318", "course": "Honors Geom / Alg II"}, {"period": "4-5", "room": "318", "course": "Honors Geom / Alg II"}, {"period": "6-7", "room": "318", "course": "Geometry"}, {"period": "HR", "room": "318", "course": "Homeroom"}]}, {"name": "Feliz, Nixon", "subject": "Math", "periods": [{"period": "2-3", "room": "419", "course": "Algebra I"}, {"period": "4-5", "room": "419", "course": "Algebra I"}, {"period": "7", "room": "322", "course": "Honors Algebra II"}, {"period": "HR", "room": "419", "course": "Homeroom"}]}, {"name": "Feliz, Yanibel", "subject": "Math", "periods": [{"period": "1-2", "room": "322", "course": "Geometry"}, {"period": "5-6", "room": "322", "course": "Geometry"}, {"period": "9", "room": "322", "course": "Student Government"}]}, {"name": "Lanzilotti, Vincent", "subject": "Math", "periods": [{"period": "1-2", "room": "322", "course": "Geometry"}, {"period": "2-3", "room": "314", "course": "Geometry Found"}, {"period": "5-6", "room": "322", "course": "Geometry"}, {"period": "6-7", "room": "314", "course": "Geometry Found"}, {"period": "HR", "room": "320", "course": "Homeroom"}]}, {"name": "Lawson, Nadou", "subject": "Math", "periods": [{"period": "2", "room": "214", "course": "Statistics"}, {"period": "3", "room": "214", "course": "Statistics"}, {"period": "6", "room": "213", "course": "AP Statistics"}, {"period": "7", "room": "213", "course": "AP Statistics"}, {"period": "HR", "room": "213", "course": "Homeroom"}, {"period": "9", "room": "213", "course": "Statistics"}]}, {"name": "McKenzie, Bryan", "subject": "Math", "periods": [{"period": "5-6", "room": "214", "course": "AP Calculus AB"}, {"period": "7", "room": "214", "course": "AP Precalculus"}, {"period": "HR", "room": "214", "course": "Homeroom"}, {"period": "9", "room": "214", "course": "AP Precalculus"}]}, {"name": "Oduro, Prince", "subject": "Math", "periods": [{"period": "1-2", "room": "326", "course": "Geometry"}, {"period": "3-4", "room": "326", "course": "Geometry"}, {"period": "6-7", "room": "326", "course": "Geometry"}, {"period": "HR", "room": "329", "course": "Homeroom"}]}, {"name": "Pognon, Honorine", "subject": "Math", "periods": [{"period": "1-2", "room": "302", "course": "Algebra II"}, {"period": "3-4", "room": "302", "course": "Algebra II"}, {"period": "6-7", "room": "302", "course": "Algebra I"}, {"period": "HR", "room": "302", "course": "Homeroom"}]}, {"name": "Stefano, Concordia", "subject": "Math", "periods": [{"period": "1-2", "room": "416", "course": "Algebra I"}, {"period": "3-4", "room": "416", "course": "Honors Algebra I"}, {"period": "6-7", "room": "416", "course": "Algebra I"}]}, {"name": "Croix, Kari", "subject": "Science", "periods": [{"period": "3", "room": "316", "course": "Biology"}, {"period": "4", "room": "421", "course": "Biology Foundations"}, {"period": "7", "room": "421", "course": "Biology Foundations"}, {"period": "8", "room": "421", "course": "Biology"}, {"period": "HR", "room": "422", "course": "Homeroom"}, {"period": "9", "room": "421", "course": "Biology"}]}, {"name": "Diegue, Ruth", "subject": "Science", "periods": [{"period": "1", "room": "316", "course": "Honors Biology"}, {"period": "3", "room": "316", "course": "Biology"}, {"period": "5", "room": "421", "course": "Honors Biology"}, {"period": "8", "room": "421", "course": "Biology"}, {"period": "HR", "room": "421", "course": "Homeroom"}, {"period": "9", "room": "421", "course": "Biology"}]}, {"name": "Pack, Jason", "subject": "Science", "periods": [{"period": "1", "room": "317", "course": "Chemistry"}, {"period": "2", "room": "317", "course": "Chemistry"}, {"period": "4", "room": "317", "course": "Chemistry"}, {"period": "5", "room": "317", "course": "Chemistry"}, {"period": "8", "room": "317", "course": "Chemistry"}, {"period": "HR", "room": "317", "course": "Homeroom"}, {"period": "9", "room": "317", "course": "Chemistry"}]}, {"name": "Ruth, Herbert", "subject": "Science", "periods": [{"period": "2", "room": "319", "course": "ESL II"}, {"period": "3", "room": "317", "course": "Chemistry Foundations"}, {"period": "4", "room": "320", "course": "ESL I"}, {"period": "7", "room": "317", "course": "Chemistry Foundations"}, {"period": "HR", "room": "318", "course": "Homeroom"}, {"period": "9", "room": "326", "course": "Chemistry Foundations"}]}, {"name": "Tapper, Noel", "subject": "Science", "periods": [{"period": "1", "room": "314", "course": "Biology"}, {"period": "2", "room": "316", "course": "Biology"}, {"period": "4", "room": "316", "course": "Biology"}, {"period": "5", "room": "316", "course": "Honors Biology"}, {"period": "7", "room": "316", "course": "Biology"}, {"period": "HR", "room": "313", "course": "Homeroom"}, {"period": "9", "room": "316", "course": "Biology"}]}, {"name": "Teichman, Elliot", "subject": "Science", "periods": [{"period": "1", "room": "217", "course": "College Env Studies (DE)"}, {"period": "2", "room": "217", "course": "AP Physics 1"}, {"period": "3", "room": "217", "course": "Intro to Engineering"}, {"period": "5", "room": "217", "course": "Intro to Engineering"}, {"period": "HR", "room": "217", "course": "Homeroom"}, {"period": "9", "room": "217", "course": "AP Physics 1"}]}, {"name": "Torres, Jorge", "subject": "Science", "periods": [{"period": "1", "room": "422", "course": "Biology"}, {"period": "2", "room": "422", "course": "Biology"}, {"period": "3", "room": "422", "course": "Biology"}, {"period": "5", "room": "422", "course": "Biology"}, {"period": "7", "room": "422", "course": "Biology"}, {"period": "HR", "room": "432", "course": "Homeroom"}, {"period": "9", "room": "422", "course": "Biology"}]}, {"name": "White, Charisse", "subject": "Science", "periods": [{"period": "1", "room": "218", "course": "Human Anatomy & Phys"}, {"period": "3", "room": "218", "course": "Honors Chemistry"}, {"period": "4", "room": "218", "course": "Human Anatomy & Phys"}, {"period": "8", "room": "218", "course": "Chemistry"}, {"period": "HR", "room": "326", "course": "Homeroom"}, {"period": "9", "room": "218", "course": "Human Anatomy & Phys"}]}, {"name": "Adhikari, Protim", "subject": "English", "periods": [{"period": "1", "room": "312", "course": "College Lit & Comp (DE)"}, {"period": "2", "room": "312", "course": "AP English Lang"}, {"period": "7", "room": "312", "course": "AP Seminar"}, {"period": "8", "room": "312", "course": "AP Seminar"}, {"period": "HR", "room": "312", "course": "Homeroom"}, {"period": "9", "room": "312", "course": "AP Seminar"}]}, {"name": "Davis, Sabrina", "subject": "English", "periods": [{"period": "1-2", "room": "329", "course": "English II"}, {"period": "5-6", "room": "329", "course": "English II"}, {"period": "8-9", "room": "329", "course": "English II"}, {"period": "HR", "room": "329", "course": "Homeroom"}]}, {"name": "Dotegowski, Matthew", "subject": "English", "periods": [{"period": "1-2", "room": "328", "course": "English II"}, {"period": "6-7", "room": "328", "course": "English II"}, {"period": "8-9", "room": "328", "course": "Honors English II"}, {"period": "HR", "room": "328", "course": "Homeroom"}]}, {"name": "Fanka, Brittany", "subject": "English", "periods": [{"period": "1", "room": "315", "course": "English III"}, {"period": "2", "room": "315", "course": "English III"}, {"period": "4", "room": "315", "course": "English III"}, {"period": "8", "room": "319", "course": "English III"}, {"period": "HR", "room": "315", "course": "Homeroom"}, {"period": "9", "room": "319", "course": "English III"}]}, {"name": "Fusco, Kelly", "subject": "English", "periods": [{"period": "1-2", "room": "431", "course": "Honors English I"}, {"period": "8-9", "room": "431", "course": "English I"}]}, {"name": "Hordge, Shadiquah", "subject": "English", "periods": [{"period": "2", "room": "216", "course": "English IV"}, {"period": "5", "room": "216", "course": "English IV"}, {"period": "6", "room": "216", "course": "English IV"}, {"period": "9", "room": "216", "course": "English IV"}]}, {"name": "Mitchell, Empress-ibny", "subject": "English", "periods": [{"period": "1-2", "room": "430", "course": "English I"}, {"period": "5-6", "room": "430", "course": "English I"}, {"period": "8-9", "room": "430", "course": "English I"}, {"period": "HR", "room": "424", "course": "Homeroom"}]}, {"name": "Mitchell-Salmon, Sophia", "subject": "English", "periods": [{"period": "1-2", "room": "432", "course": "English I"}, {"period": "5-6", "room": "432", "course": "English I"}, {"period": "7-8", "room": "432", "course": "English I"}, {"period": "HR", "room": "432", "course": "Homeroom"}]}, {"name": "Philip, Leonard", "subject": "English", "periods": [{"period": "1-2", "room": "328", "course": "English II"}, {"period": "4-5", "room": "328", "course": "English II Foundations"}, {"period": "6-7", "room": "328", "course": "English II"}, {"period": "8-9", "room": "318", "course": "English II Foundations"}, {"period": "HR", "room": "328", "course": "Homeroom"}]}, {"name": "Pollard, Jewell", "subject": "English", "periods": [{"period": "1-2", "room": "432", "course": "English I"}, {"period": "4-5", "room": "431", "course": "English I Foundations"}, {"period": "5-6", "room": "432", "course": "English I"}, {"period": "8-9", "room": "418", "course": "English I Foundations"}, {"period": "HR", "room": "423", "course": "Homeroom"}]}, {"name": "Smart Younge, Shamane", "subject": "English", "periods": [{"period": "1", "room": "315", "course": "English III"}, {"period": "2", "room": "216", "course": "English IV"}, {"period": "4", "room": "315", "course": "English III"}, {"period": "5", "room": "216", "course": "English IV"}, {"period": "6", "room": "208", "course": "English IV Foundations"}, {"period": "9", "room": "208", "course": "English III Foundations"}]}, {"name": "Waters, Todtanisha", "subject": "English", "periods": [{"period": "1-2", "room": "321", "course": "English II"}, {"period": "5-6", "room": "321", "course": "English I"}, {"period": "7-8", "room": "321", "course": "English II"}, {"period": "HR", "room": "418", "course": "Homeroom"}]}, {"name": "Auguste, Alisia", "subject": "History", "periods": [{"period": "1", "room": "213", "course": "AP US History"}, {"period": "2", "room": "213", "course": "Economics/Civics"}, {"period": "4", "room": "213", "course": "AP US History"}, {"period": "5", "room": "213", "course": "Study Hall"}, {"period": "8", "room": "213", "course": "Economics/Civics"}, {"period": "HR", "room": "307", "course": "Homeroom"}]}, {"name": "Azore, Anastasia", "subject": "History", "periods": [{"period": "1", "room": "423", "course": "AfAm/Latinx History"}, {"period": "3", "room": "423", "course": "AfAm/Latinx History"}, {"period": "4", "room": "423", "course": "AfAm/Latinx History"}, {"period": "8", "room": "423", "course": "Honors AfAm/Latinx"}, {"period": "HR", "room": "423", "course": "Homeroom"}, {"period": "9", "room": "423", "course": "AfAm/Latinx History"}]}, {"name": "Banda, Mtali", "subject": "History", "periods": [{"period": "1", "room": "211", "course": "African American Studies"}, {"period": "2", "room": "211", "course": "African American Studies"}, {"period": "3", "room": "211", "course": "US History II"}, {"period": "5", "room": "211", "course": "AP AfAm Studies"}, {"period": "9", "room": "211", "course": "African American Studies"}]}, {"name": "Bernard, Kevin", "subject": "History", "periods": [{"period": "2", "room": "423", "course": "AfAm Hist Foundations"}, {"period": "4", "room": "423", "course": "AfAm/Latinx History"}, {"period": "8", "room": "423", "course": "AfAm Hist Foundations"}, {"period": "HR", "room": "422", "course": "Homeroom"}, {"period": "9", "room": "423", "course": "AfAm/Latinx History"}]}, {"name": "Braithwaite, Jamella", "subject": "History", "periods": [{"period": "2", "room": "320", "course": "World History"}, {"period": "3", "room": "307", "course": "Modern World Hist Found"}, {"period": "5", "room": "320", "course": "World History"}, {"period": "8", "room": "314", "course": "Modern World Hist Found"}, {"period": "HR", "room": "320", "course": "Homeroom"}, {"period": "9", "room": "314", "course": "Modern World Hist Found"}]}, {"name": "Dixon, Charlene", "subject": "History", "periods": [{"period": "2", "room": "320", "course": "World History"}, {"period": "3", "room": "320", "course": "World History"}, {"period": "5", "room": "320", "course": "World History"}, {"period": "8", "room": "320", "course": "World History"}]}, {"name": "Goodlow, Gigg", "subject": "History", "periods": [{"period": "2", "room": "307", "course": "AP World History"}, {"period": "4", "room": "307", "course": "US History II"}, {"period": "6", "room": "307", "course": "AP World History"}, {"period": "8", "room": "307", "course": "US History II"}]}, {"name": "Manderville, Terrance", "subject": "History", "periods": [{"period": "3", "room": "211", "course": "US History II"}, {"period": "5", "room": "307", "course": "US History II"}, {"period": "6", "room": "320", "course": "World History"}, {"period": "HR", "room": "315", "course": "Homeroom"}, {"period": "9", "room": "307", "course": "World History"}]}, {"name": "Reynolds, Daena", "subject": "History", "periods": [{"period": "1", "room": "424", "course": "AfAm/Latinx History"}, {"period": "2", "room": "424", "course": "World History"}, {"period": "3", "room": "424", "course": "AfAm/Latinx History"}, {"period": "5", "room": "424", "course": "AfAm/Latinx History"}, {"period": "HR", "room": "424", "course": "Homeroom"}, {"period": "9", "room": "424", "course": "AfAm/Latinx History"}]}, {"name": "Blanken, Drew", "subject": "Self-Contained", "periods": [{"period": "3", "room": "429", "course": "Concepts (Social Studies)"}, {"period": "4", "room": "429", "course": "Concepts (Math)"}, {"period": "5", "room": "429", "course": "Concepts (Social Studies)"}, {"period": "7", "room": "429", "course": "Concepts (Math)"}, {"period": "8", "room": "429", "course": "Algebra I Concepts"}, {"period": "HR", "room": "429", "course": "Homeroom"}]}, {"name": "Harkey, Aspen", "subject": "Self-Contained", "periods": [{"period": "2", "room": "429", "course": "English Concepts"}, {"period": "3", "room": "425", "course": "English Concepts"}, {"period": "6", "room": "325", "course": "Entrepreneurship"}, {"period": "8", "room": "425", "course": "English Concepts"}, {"period": "HR", "room": "211", "course": "Homeroom"}, {"period": "9", "room": "425", "course": "Study Hall"}]}, {"name": "Reed, Ja'Taeja", "subject": "Self-Contained", "periods": [{"period": "2", "room": "429", "course": "Life Skills"}, {"period": "4", "room": "425", "course": "Concepts (Science)"}, {"period": "7", "room": "425", "course": "Concepts (Science)"}, {"period": "8", "room": "425", "course": "Life Skills"}, {"period": "HR", "room": "425", "course": "Homeroom"}]}, {"name": "Strothers, Sharonda", "subject": "Self-Contained", "periods": [{"period": "2", "room": "401", "course": "English Concepts"}, {"period": "3", "room": "401", "course": "Math Concepts"}, {"period": "5", "room": "401", "course": "Science Concepts"}, {"period": "7", "room": "401", "course": "Life Skills"}, {"period": "8", "room": "401", "course": "Social Studies Concepts"}, {"period": "HR", "room": "401", "course": "Homeroom"}, {"period": "9", "room": "401", "course": "Study Hall"}]}, {"name": "Turner, Danielle", "subject": "Self-Contained", "periods": [{"period": "2", "room": "412", "course": "Life Skills"}, {"period": "9", "room": "429", "course": "Study Hall"}]}, {"name": "Britt-Tillery, Rahbert", "subject": "VPA", "periods": [{"period": "2", "room": "Theater", "course": "Intro V&P Arts"}, {"period": "3", "room": "Theater", "course": "Intro V&P Arts"}, {"period": "4", "room": "Theater", "course": "Study Hall"}, {"period": "6", "room": "Theater", "course": "Dance I"}, {"period": "8", "room": "Theater", "course": "Dance I"}, {"period": "HR", "room": "418", "course": "Homeroom"}]}, {"name": "Farrar, Quay", "subject": "VPA", "periods": [{"period": "1", "room": "420", "course": "Intro to Art"}, {"period": "3", "room": "420", "course": "Study Hall"}, {"period": "4", "room": "420", "course": "Art II"}, {"period": "6", "room": "420", "course": "Intro to Art"}, {"period": "8", "room": "420", "course": "Intro to Art"}, {"period": "HR", "room": "218", "course": "Homeroom"}]}, {"name": "Jones, Quincy", "subject": "VPA", "periods": [{"period": "3", "room": "315", "course": "Film Studies"}, {"period": "6", "room": "315", "course": "Intro V&P Arts"}, {"period": "7", "room": "315", "course": "Film Studies II"}, {"period": "8", "room": "315", "course": "Study Hall"}, {"period": "HR", "room": "209", "course": "Homeroom"}, {"period": "9", "room": "315", "course": "Film Studies"}]}, {"name": "Newsome, Samar", "subject": "VPA", "periods": [{"period": "3", "room": "417", "course": "Piano"}, {"period": "4", "room": "411", "course": "Study Hall"}, {"period": "5", "room": "417", "course": "Choir"}, {"period": "7", "room": "417", "course": "Piano"}, {"period": "8", "room": "424", "course": "Intro V&P Arts"}]}, {"name": "Brown, Harold", "subject": "Tech", "periods": [{"period": "2", "room": "414", "course": "Technology & Design"}, {"period": "3", "room": "414", "course": "College Intro to Programming"}, {"period": "6", "room": "414", "course": "AP Computer Science A"}, {"period": "7", "room": "209", "course": "Study Hall"}, {"period": "8", "room": "414", "course": "Cybersecurity I"}]}, {"name": "Cullen, Tom", "subject": "Tech", "periods": [{"period": "1", "room": "414", "course": "AP CS Principles"}, {"period": "2", "room": "310", "course": "Study Hall"}, {"period": "5", "room": "414", "course": "AP CS Principles"}, {"period": "7", "room": "414", "course": "Intro to Computer Science"}, {"period": "HR", "room": "316", "course": "Homeroom"}, {"period": "9", "room": "414", "course": "AP CS Principles"}]}, {"name": "Austin, Nia", "subject": "Phys Ed", "periods": [{"period": "1", "room": "426", "course": "PE & Health (concepts)"}, {"period": "3", "room": "215", "course": "PE & Health III"}, {"period": "4", "room": "426", "course": "PE & Health (sensory)"}, {"period": "6", "room": "215", "course": "PE & Health III"}, {"period": "7", "room": "215", "course": "PE & Health III"}, {"period": "8", "room": "215", "course": "PE & Health III"}]}, {"name": "Batts, Jasmine", "subject": "Phys Ed", "periods": [{"period": "2", "room": "411", "course": "PE & Health I"}, {"period": "3", "room": "411", "course": "PE & Health I"}, {"period": "6", "room": "411", "course": "PE & Health I"}, {"period": "7", "room": "411", "course": "PE & Health I (honors)"}, {"period": "8", "room": "416", "course": "PE & Health I"}, {"period": "HR", "room": "411", "course": "Homeroom"}]}, {"name": "Brooks, Jyron", "subject": "Phys Ed", "periods": [{"period": "1", "room": "Theater", "course": "PE & Health II"}, {"period": "3", "room": "321", "course": "PE & Health II"}, {"period": "4", "room": "321", "course": "PE & Health II"}, {"period": "5", "room": "Theater", "course": "PE & Health II"}, {"period": "7", "room": "Theater", "course": "PE & Health II"}]}, {"name": "Cruoglio, Anthony", "subject": "Phys Ed", "periods": [{"period": "1", "room": "319", "course": "Driver's Ed"}, {"period": "3", "room": "319", "course": "Driver's Ed"}, {"period": "4", "room": "319", "course": "Driver's Ed"}, {"period": "5", "room": "319", "course": "Driver's Ed"}, {"period": "7", "room": "319", "course": "Driver's Ed"}, {"period": "HR", "room": "319", "course": "Homeroom"}]}, {"name": "Ruth, Isaiah", "subject": "Phys Ed", "periods": [{"period": "1", "room": "215", "course": "PE & Health IV"}, {"period": "2", "room": "215", "course": "PE & Health III"}, {"period": "4", "room": "215", "course": "PE & Health III"}, {"period": "5", "room": "215", "course": "PE & Health III"}, {"period": "7", "room": "313", "course": "PE & Health IV"}, {"period": "HR", "room": "310", "course": "Homeroom"}]}, {"name": "Scott, Sultan", "subject": "Phys Ed", "periods": [{"period": "1", "room": "209", "course": "PE & Health IV"}, {"period": "2", "room": "209", "course": "PE & Health IV"}, {"period": "3", "room": "209", "course": "PE & Health IV"}, {"period": "5", "room": "209", "course": "PE & Health IV"}, {"period": "6", "room": "209", "course": "PE & Health IV"}, {"period": "8", "room": "209", "course": "PE & Health IV"}]}, {"name": "Cruz Terrones, Adela", "subject": "World Language", "periods": [{"period": "1", "room": "313", "course": "Spanish II"}, {"period": "3", "room": "313", "course": "Spanish II"}, {"period": "4", "room": "313", "course": "Spanish II"}, {"period": "6", "room": "313", "course": "Spanish II"}, {"period": "HR", "room": "321", "course": "Homeroom"}, {"period": "9", "room": "313", "course": "Spanish II"}]}, {"name": "Hernandez, Israel", "subject": "World Language", "periods": [{"period": "1", "room": "411", "course": "Spanish I"}, {"period": "3", "room": "430", "course": "Spanish I"}, {"period": "4", "room": "430", "course": "Spanish I"}, {"period": "8", "room": "411", "course": "Spanish I"}, {"period": "HR", "room": "411", "course": "Homeroom"}, {"period": "9", "room": "411", "course": "Spanish I"}]}, {"name": "Medel, Crystal", "subject": "World Language", "periods": [{"period": "1", "room": "401", "course": "Spanish I"}, {"period": "4", "room": "301", "course": "Spanish III"}, {"period": "6", "room": "301", "course": "Spanish III"}, {"period": "HR", "room": "317", "course": "Homeroom"}, {"period": "9", "room": "302", "course": "Spanish III"}]}, {"name": "Suarez-Acosta, Arnold", "subject": "World Language", "periods": [{"period": "3", "room": "412", "course": "Spanish I"}, {"period": "4", "room": "412", "course": "Spanish I"}, {"period": "7", "room": "412", "course": "Spanish I"}, {"period": "8", "room": "412", "course": "Spanish I"}, {"period": "HR", "room": "412", "course": "Homeroom"}, {"period": "9", "room": "412", "course": "Spanish I"}]}, {"name": "Villela, Diana", "subject": "World Language", "periods": [{"period": "1", "room": "301", "course": "Spanish II"}, {"period": "3", "room": "301", "course": "Spanish II"}, {"period": "7", "room": "301", "course": "Spanish I"}, {"period": "8", "room": "301", "course": "Spanish II"}, {"period": "HR", "room": "301", "course": "Homeroom"}, {"period": "9", "room": "301", "course": "Spanish II"}]}, {"name": "Baker Martin, Leann", "subject": "College & Career", "periods": [{"period": "2", "room": "208", "course": "College Personal Finance (DE)"}, {"period": "3", "room": "208", "course": "Financial Literacy"}, {"period": "4", "room": "208", "course": "College Personal Finance (DE)"}, {"period": "7", "room": "208", "course": "Financial Literacy"}, {"period": "8", "room": "208", "course": "Study Hall"}, {"period": "HR", "room": "208", "course": "Homeroom"}]}, {"name": "Dublin, Nas", "subject": "College & Career", "periods": [{"period": "1", "room": "216", "course": "Financial Literacy"}, {"period": "3", "room": "216", "course": "College & Career III"}, {"period": "6", "room": "310", "course": "College & Career III"}, {"period": "7", "room": "310", "course": "Financial Literacy"}, {"period": "8", "room": "310", "course": "Financial Literacy"}, {"period": "HR", "room": "216", "course": "Homeroom"}]}, {"name": "Kane, Shawn", "subject": "College & Career", "periods": [{"period": "1", "room": "310", "course": "College & Career III"}, {"period": "3", "room": "310", "course": "College & Career III"}, {"period": "4", "room": "310", "course": "College & Career III"}, {"period": "5", "room": "310", "course": "College & Career III"}, {"period": "8", "room": "308", "course": "College & Career III"}, {"period": "HR", "room": "312", "course": "Homeroom"}]}]};
@@ -531,11 +556,70 @@ let myName="";
 let glows={}, nonneg={}, ratings={}, prerate={};
 let visited={};
 let started=false;
-let walkNo='1', walkDate='';
+let walkNo='1', walkDate='', walkId='';
 var STORE_KEY='ncNormingWalk_v1';
-function saveState(){try{if(typeof saveGlow==='function')saveGlow();var tm=document.getElementById('totalMin');var mn=document.getElementById('myName');var data={v:1,walkNo:walkNo,walkDate:walkDate,myName:mn?mn.value:myName,totalMin:tm?tm.value:'40',rooms:rooms,ratings:ratings,prerate:prerate,nonneg:nonneg,glows:glows,microgoals:microgoals,visited:visited,current:current,started:started};localStorage.setItem(STORE_KEY,JSON.stringify(data));}catch(e){}}
-function loadState(){try{var raw=localStorage.getItem(STORE_KEY);if(!raw)return false;var d=JSON.parse(raw);if(!d)return false;if(d.walkNo!=null)walkNo=d.walkNo;if(d.walkDate!=null)walkDate=d.walkDate;if(d.myName!=null)myName=d.myName;if(d.rooms&&d.rooms.length)rooms=d.rooms;ratings=d.ratings||{};prerate=d.prerate||{};nonneg=d.nonneg||{};glows=d.glows||{};microgoals=d.microgoals||{};visited=d.visited||{};current=d.current||0;started=!!d.started;var tm=document.getElementById('totalMin');if(tm&&d.totalMin)tm.value=d.totalMin;var wn=document.getElementById('walkNo');if(wn)wn.value=walkNo;var wd=document.getElementById('walkDate');if(wd&&walkDate)wd.value=walkDate;var mn=document.getElementById('myName');if(mn&&myName)mn.value=myName;return true;}catch(e){return false;}}
-function resetAll(){try{localStorage.removeItem(STORE_KEY);}catch(e){}location.reload();}
+var ARCHIVE_KEY='ncNormingWalkArchive_v1';
+function snapshotObj(){
+  if(typeof saveGlow==='function')saveGlow();
+  var tm=document.getElementById('totalMin'),mn=document.getElementById('myName');
+  return {v:1,walkId:walkId,walkNo:walkNo,walkDate:walkDate,myName:mn?mn.value:myName,totalMin:tm?tm.value:'40',
+    rooms:rooms,ratings:ratings,prerate:prerate,nonneg:nonneg,glows:glows,microgoals:microgoals,visited:visited,current:current,started:started};
+}
+function applySnapshot(d){
+  if(!d)return;
+  if(d.walkId)walkId=d.walkId;
+  if(d.walkNo!=null)walkNo=d.walkNo; if(d.walkDate!=null)walkDate=d.walkDate; if(d.myName!=null)myName=d.myName;
+  if(d.rooms&&d.rooms.length)rooms=d.rooms;
+  ratings=d.ratings||{};prerate=d.prerate||{};nonneg=d.nonneg||{};glows=d.glows||{};microgoals=d.microgoals||{};visited=d.visited||{};
+  current=d.current||0;started=!!d.started;
+  var tm=document.getElementById('totalMin');if(tm&&d.totalMin)tm.value=d.totalMin;
+  var wn=document.getElementById('walkNo');if(wn)wn.value=walkNo;
+  var wd=document.getElementById('walkDate');if(wd)wd.value=walkDate||'';
+  var mn=document.getElementById('myName');if(mn)mn.value=myName||'';
+}
+function saveState(){try{localStorage.setItem(STORE_KEY,JSON.stringify(snapshotObj()));}catch(e){}}
+function loadState(){try{var raw=localStorage.getItem(STORE_KEY);if(!raw)return false;var d=JSON.parse(raw);if(!d)return false;applySnapshot(d);return true;}catch(e){return false;}}
+function loadArchive(){try{var raw=localStorage.getItem(ARCHIVE_KEY);if(!raw)return [];var a=JSON.parse(raw);return Array.isArray(a)?a:[];}catch(e){return [];}}
+function saveArchive(a){try{localStorage.setItem(ARCHIVE_KEY,JSON.stringify(a));}catch(e){}}
+function hasContent(){
+  if(started)return true;
+  for(var k in ratings){if(ratings[k]&&ratings[k].some(function(v){return v!=null;}))return true;}
+  for(var g in glows){if((glows[g]||'').trim())return true;}
+  for(var m in microgoals){if(microgoals[m])return true;}
+  for(var i=0;i<rooms.length;i++){if((rooms[i].teacher||'').trim())return true;}
+  return false;
+}
+function archiveCurrent(){
+  var a=loadArchive(); var exists=false;
+  for(var k=0;k<a.length;k++){if(a[k].walkId===walkId){exists=true;break;}}
+  if(!hasContent()&&!exists)return;
+  var snap=snapshotObj(); snap.savedAt=Date.now();
+  var i=-1; for(var j=0;j<a.length;j++){if(a[j].walkId===snap.walkId){i=j;break;}}
+  if(i>=0)a[i]=snap; else a.push(snap);
+  saveArchive(a);
+}
+function startNewWalkthrough(){archiveCurrent();try{localStorage.removeItem(STORE_KEY);}catch(e){}location.reload();}
+function openArchived(id){
+  archiveCurrent();
+  var a=loadArchive(),e=null; for(var k=0;k<a.length;k++){if(a[k].walkId===id){e=a[k];break;}}
+  if(!e)return;
+  applySnapshot(e); saveState();
+  updateWtBadge(); updateStartBtn(); renderRooms(); renderArchive(); setStep('setup');
+}
+function deleteArchived(id){var a=loadArchive().filter(function(x){return x.walkId!==id;});saveArchive(a);renderArchive();}
+function fmtSaved(ts){try{var d=new Date(ts);var mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()];var h=d.getHours(),m=d.getMinutes(),ap=h>=12?'PM':'AM';h=h%12||12;return mo+' '+d.getDate()+', '+h+':'+(m<10?'0'+m:m)+' '+ap;}catch(e){return '';}}
+function renderArchive(){
+  var card=document.getElementById('archiveCard'),box=document.getElementById('archiveList'); if(!box)return;
+  var a=loadArchive().slice().sort(function(x,y){return (Number(x.walkNo)-Number(y.walkNo))||(x.savedAt-y.savedAt);});
+  if(!a.length){if(card)card.style.display='none';box.innerHTML='';return;}
+  if(card)card.style.display='block';
+  box.innerHTML=a.map(function(e){
+    var sub=(e.walkDate?fmtDate(e.walkDate)+' \u00b7 ':'')+'saved '+fmtSaved(e.savedAt);
+    return '<div class="arch-row"><div class="arch-meta"><div class="arch-t">Walkthrough '+(e.walkNo||'?')+'</div><div class="arch-s">'+sub+'</div></div><div class="arch-actions"><button class="btn btn-ghost btn-sm" data-open="'+e.walkId+'">Open</button><button class="arch-del" data-del="'+e.walkId+'" title="Delete">&times;</button></div></div>';
+  }).join('');
+  box.querySelectorAll('[data-open]').forEach(function(b){b.addEventListener('click',function(){openArchived(b.getAttribute('data-open'));});});
+  box.querySelectorAll('[data-del]').forEach(function(b){b.addEventListener('click',function(){if(window.confirm('Delete this saved walkthrough?'))deleteArchived(b.getAttribute('data-del'));});});
+}
 let current=0, indIdx=0;
 let secsLeft=0,running=false,tick=null,roomSeconds=0;
 let schedMode='content', schedPeriod='1', schedReturn='setup', detailTeacher=null;
@@ -549,7 +633,7 @@ function renderRoomNav(id){
   box.innerHTML=rooms.map((r,i)=>{
     const nm=r.teacher?esc(r.teacher):('Room '+(i+1));
     let cls='rn-chip'; if(i===current)cls+=' cur'; if(visited[i])cls+=' done';
-    return '<button class="'+cls+'" data-go="'+i+'"><span class="rn-n">'+(i+1)+'</span>'+nm+(visited[i]?' <span class="rn-ck">\u2713</span>':'')+'</button>';
+    var _cs=roomStyle(i);return '<button class="'+cls+'" data-go="'+i+'"><span class="rn-n" style="background:'+_cs.bg+';color:'+_cs.fg+'">'+(i+1)+'</span>'+nm+(visited[i]?' <span class="rn-ck">\u2713</span>':'')+'</button>';
   }).join('');
   box.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>jumpToRoom(+b.dataset.go)));
 }
@@ -575,17 +659,33 @@ function renderMath(){
   if(observe<5) html+='<span class="math-warn">Tight. A full six-indicator circle wants 3 to 4 minutes. For a real read in each room, consider dropping to 4 rooms.</span>';
   document.getElementById('mathLine').innerHTML=html;
 }
+const ROOMSTYLE=[{bg:'#59c0e8',fg:'#14284b'},{bg:'#c2d501',fg:'#14284b'},{bg:'#f9a11b',fg:'#14284b'},{bg:'#ee4028',fg:'#fff'},{bg:'#22285b',fg:'#fff'}];
+function roomStyle(i){return ROOMSTYLE[i%ROOMSTYLE.length];}
+function autofillRoom(i){var r=rooms[i];if(!r.teacher||!r.period)return;var t=null;for(var k=0;k<SCHEDULE.teachers.length;k++){if(SCHEDULE.teachers[k].name===r.teacher){t=SCHEDULE.teachers[k];break;}}if(!t)return;for(var j=0;j<t.periods.length;j++){if(coversPeriod(t.periods[j].period,r.period)){r.room=t.periods[j].room;return;}}}
 function renderRooms(){
   const list=document.getElementById('roomList'); list.innerHTML='';
+  const PSEL=['','1','2','3','4','5','6','7','8','9','HR'];
   rooms.forEach((r,i)=>{
     if(!r.roles) r.roles={video:'',photo:'',coach:''};
+    const cs=roomStyle(i);
+    const deptTeachers=SCHEDULE.teachers.filter(t=>t.subject===r.dept).map(t=>t.name);
+    const inList=deptTeachers.indexOf(r.teacher)>-1;
+    const custom=!!r._custom||(r.teacher&&!inList);
+    let teacherHTML;
+    if(custom){
+      teacherHTML='<label>Teacher</label><input type="text" data-i="'+i+'" data-k="teacher" value="'+esc(r.teacher)+'" placeholder="Type a name"><button class="link-btn" data-fromlist="'+i+'">Choose from list</button>';
+    } else {
+      teacherHTML='<label>Teacher</label><select data-tsel="'+i+'"><option value="">Select teacher</option>'+deptTeachers.map(n=>'<option '+(n===r.teacher?'selected':'')+'>'+esc(n)+'</option>').join('')+'<option value="__other__">Other (type a name)</option></select>';
+    }
     const block=document.createElement('div'); block.className='room-block';
+    block.style.borderLeft='6px solid '+cs.bg;
     block.innerHTML=
-      '<div class="rb-head"><span class="num">'+(i+1)+'</span><span class="rb-title">Room '+(i+1)+'</span><button class="del" data-del="'+i+'" title="Remove">&times;</button></div>'+
+      '<div class="rb-head"><span class="num" style="background:'+cs.bg+';color:'+cs.fg+'">'+(i+1)+'</span><span class="rb-title">Room '+(i+1)+'</span><button class="del" data-del="'+i+'" title="Remove">&times;</button></div>'+
       '<div class="rb-fields">'+
-        '<div class="f-teacher"><label>Teacher</label><input type="text" data-i="'+i+'" data-k="teacher" value="'+esc(r.teacher)+'" placeholder="Name"></div>'+
-        '<div><label>Dept</label><select data-i="'+i+'" data-k="dept">'+DEPTS.map(d=>'<option '+(d===r.dept?'selected':'')+'>'+esc(d)+'</option>').join('')+'</select></div>'+
+        '<div class="f-teacher">'+teacherHTML+'</div>'+
+        '<div><label>Dept</label><select data-dsel="'+i+'">'+DEPTS.map(d=>'<option '+(d===r.dept?'selected':'')+'>'+esc(d)+'</option>').join('')+'</select></div>'+
         '<div><label>Tenure</label><select data-i="'+i+'" data-k="tenure">'+TENURES.map(function(tn){return '<option '+(r.tenure===tn?'selected':'')+'>'+tn+'</option>';}).join('')+'</select></div>'+
+        '<div style="flex:0 0 84px"><label>Period</label><select data-psel="'+i+'">'+PSEL.map(function(p){return '<option value="'+p+'" '+((r.period||'')===p?'selected':'')+'>'+p+'</option>';}).join('')+'</select></div>'+
         '<div style="flex:0 0 80px"><label>Room</label><input type="text" data-i="'+i+'" data-k="room" value="'+esc(r.room)+'" placeholder="#"></div>'+
       '</div>'+
       '<div class="rb-roles"><div class="rb-roles-label">Roles for this room</div>'+
@@ -596,12 +696,17 @@ function renderRooms(){
     list.appendChild(block);
   });
   list.querySelectorAll('[data-i]').forEach(el=>el.addEventListener('input',e=>{rooms[e.target.dataset.i][e.target.dataset.k]=e.target.value;}));
+  list.querySelectorAll('[data-tsel]').forEach(sel=>sel.addEventListener('change',e=>{const i=e.target.dataset.tsel,v=e.target.value;if(v==='__other__'){rooms[i]._custom=true;rooms[i].teacher='';renderRooms();}else{rooms[i].teacher=v;rooms[i]._custom=false;autofillRoom(i);renderRooms();}}));
+  list.querySelectorAll('[data-psel]').forEach(sel=>sel.addEventListener('change',e=>{const i=e.target.dataset.psel;rooms[i].period=e.target.value;autofillRoom(i);renderRooms();}));
+  list.querySelectorAll('[data-dsel]').forEach(sel=>sel.addEventListener('change',e=>{const i=e.target.dataset.dsel;rooms[i].dept=e.target.value;if(!rooms[i]._custom){const dt=SCHEDULE.teachers.filter(t=>t.subject===rooms[i].dept).map(t=>t.name);if(dt.indexOf(rooms[i].teacher)===-1)rooms[i].teacher='';}renderRooms();renderMath();}));
+  list.querySelectorAll('[data-fromlist]').forEach(b=>b.addEventListener('click',e=>{const i=e.currentTarget.dataset.fromlist;rooms[i]._custom=false;rooms[i].teacher='';renderRooms();}));
   list.querySelectorAll('[data-ri]').forEach(el=>el.addEventListener('input',e=>{const i=e.target.dataset.ri,k=e.target.dataset.rk;if(!rooms[i].roles)rooms[i].roles={video:'',photo:'',coach:''};rooms[i].roles[k]=e.target.value;}));
   list.querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click',e=>{if(rooms.length<=1)return;rooms.splice(parseInt(e.currentTarget.dataset.del),1);renderRooms();renderMath();}));
   renderMath();
 }
 document.getElementById('addRoom').addEventListener('click',()=>{rooms.push({teacher:"",dept:"Math",tenure:"New",room:"",roles:{video:"",photo:"",coach:""}});renderRooms();});
 document.getElementById('totalMin').addEventListener('input',renderMath);
+document.getElementById('roomCount').addEventListener('change',function(e){var n=Math.max(1,Math.min(20,parseInt(e.target.value)||rooms.length));while(rooms.length<n)rooms.push({teacher:'',dept:'Math',tenure:'New',room:'',roles:{video:'',photo:'',coach:''}});while(rooms.length>n)rooms.pop();renderRooms();});
 
 document.getElementById('startBtn').addEventListener('click',()=>{
   myName=document.getElementById('myName').value.trim();
@@ -716,6 +821,7 @@ document.getElementById('dAdd').addEventListener('click',()=>{
 });
 
 // ---------- observe ----------
+function kid90txt(n){n=parseInt(n);return (n>0)?('90% is '+Math.ceil(0.9*n)+' students'):'';}
 function loadObserve(i){
   saveGlow(); current=i;
   showView('view-observe');
@@ -725,6 +831,7 @@ function loadObserve(i){
   document.getElementById('obTeacher').textContent=r.teacher||'Teacher';
   document.getElementById('obDept').textContent=r.dept;
   document.getElementById('obRoom').textContent=r.room?('Room '+r.room):'';
+  var _pe=document.getElementById('obPeriod'); if(_pe)_pe.textContent=r.period?('Period '+r.period):'';
   const rr=r.roles||{video:'',photo:'',coach:''};
   document.getElementById('rolesStrip').innerHTML=[['Video',rr.video],['Photos',rr.photo],['Coach',rr.coach]]
     .map(x=>'<div class="role-chip"><div class="rl">'+x[0]+'</div><div class="rn">'+(x[1]||'-')+'</div></div>').join('');
@@ -735,6 +842,7 @@ function loadObserve(i){
   document.getElementById('indRef').innerHTML=INDICATORS.map((x,k)=>'<div class="ind-ref"><div class="ir-top"><div class="t"><span>'+x.n+'</span>'+x.title+'</div><div class="toggle"><button data-pr="'+k+'" data-v="1" class="'+(pr[k]===1?'on-yes':'')+'">Yes</button><button data-pr="'+k+'" data-v="0" class="'+(pr[k]===0?'on-not':'')+'">Not Yet</button></div></div><div class="l">'+x.look+'</div></div>').join('');
   document.querySelectorAll('#indRef [data-pr]').forEach(b=>b.addEventListener('click',()=>{const a=prerateArr(current);const k=+b.dataset.pr,v=+b.dataset.v;a[k]=a[k]===v?null:v;loadObserve(current);}));
   document.getElementById('glowInput').value=glows[i]||'';
+  var _obk=rooms[i].kids||''; var _ob=document.getElementById('obKids'); if(_ob)_ob.value=_obk; var _ob9=document.getElementById('obKid90'); if(_ob9)_ob9.textContent=kid90txt(_obk);
   renderRoomNav('roomNavOb');
   resetTimer();
 }
@@ -754,6 +862,7 @@ function loadCircle(){
   showView('view-circle');
   const r=rooms[current], ind=INDICATORS[indIdx], arr=ratingArr(current);
   document.getElementById('circleWho').textContent=(r.teacher||('Room '+(current+1)))+' \u00b7 '+r.dept;
+  var _ckk=rooms[current].kids||''; var _ck=document.getElementById('ckKids'); if(_ck)_ck.value=_ckk; var _ck9=document.getElementById('ckKid90'); if(_ck9)_ck9.textContent=kid90txt(_ckk);
   document.getElementById('dots').innerHTML=INDICATORS.map((x,k)=>{
     let cls='dot';if(k===indIdx)cls+=' cur';if(arr[k]===1)cls+=' rated-yes';else if(arr[k]===0)cls+=' rated-not';
     return '<div class="'+cls+'" data-jump="'+k+'">'+x.n+'</div>';}).join('');
@@ -775,14 +884,15 @@ function paintReveal(){
   document.getElementById('btnYes').classList.toggle('active',v===1);
   document.getElementById('btnNot').classList.toggle('active',v===0);
 }
-document.getElementById('btnYes').addEventListener('click',()=>{ratingArr(current)[indIdx]=1;refreshDots();paintReveal();});
-document.getElementById('btnNot').addEventListener('click',()=>{ratingArr(current)[indIdx]=0;refreshDots();paintReveal();});
+document.getElementById('btnYes').addEventListener('click',()=>{var _y=window.scrollY;ratingArr(current)[indIdx]=1;refreshDots();paintReveal();window.scrollTo(0,_y);});
+document.getElementById('btnNot').addEventListener('click',()=>{var _y=window.scrollY;ratingArr(current)[indIdx]=0;refreshDots();paintReveal();window.scrollTo(0,_y);});
 function refreshDots(){const arr=ratingArr(current);document.querySelectorAll('#dots .dot').forEach((d,k)=>{d.classList.remove('rated-yes','rated-not');if(arr[k]===1)d.classList.add('rated-yes');else if(arr[k]===0)d.classList.add('rated-not');});}
 document.getElementById('prevInd').addEventListener('click',()=>{if(indIdx>0){indIdx--;loadCircle();}});
 document.getElementById('nextInd').addEventListener('click',()=>{
   if(indIdx<5){indIdx++;loadCircle();}
   else loadMicrogoal();
 });
+document.getElementById('skipMg').addEventListener('click',()=>{loadMicrogoal();});
 document.getElementById('backRoom').addEventListener('click',()=>{setStep('live');loadObserve(current);});
 
 // ---------- microgoal ----------
@@ -805,12 +915,13 @@ function renderMgChips(){
   const arr=ratingArr(current);
   document.getElementById('mgChips').innerHTML=INDICATORS.map((x,k)=>{
     let cls='mg-chip';if(k===mgInd)cls+=' cur';if(arr[k]===0)cls+=' flag';
-    return '<div class="'+cls+'" data-mg="'+k+'">'+x.n+'</div>';
+    return '<div class="'+cls+'" data-mg="'+k+'">'+x.n+'. '+x.title+'</div>';
   }).join('');
   document.querySelectorAll('#mgChips [data-mg]').forEach(c=>c.addEventListener('click',()=>{mgInd=parseInt(c.dataset.mg);renderMgChips();renderMgList();}));
 }
 function renderMgList(){
   const sel=microgoals[current];
+  var _it=document.getElementById('mgIndTitle'); if(_it)_it.innerHTML='<div class="mgi-t">Indicator '+INDICATORS[mgInd].n+' \u00b7 '+INDICATORS[mgInd].title+'</div><div class="mgi-l">'+INDICATORS[mgInd].look+'</div>';
   document.getElementById('mgList').innerHTML=MICROGOALS[mgInd].map((m,j)=>{
     const on = sel && sel.ind===mgInd && sel.c===m.c;
     return '<div class="mg-item'+(on?' sel':'')+'" data-j="'+j+'"><div class="code">'+m.c+'</div><div class="ti">'+esc(m.t)+'</div><div class="tx">'+esc(m.x)+'</div></div>';
@@ -882,17 +993,20 @@ function walkLabel(){return 'Walkthrough '+(walkNo||'1')+(walkDate?' \u00b7 '+fm
 function updateWtBadge(){var b=document.getElementById('wtBadge');if(!b)return;b.textContent='Walkthrough '+(walkNo||'1');b.style.display='inline-block';}
 var _wn=document.getElementById('walkNo'); if(_wn)_wn.addEventListener('input',function(e){walkNo=e.target.value;updateWtBadge();});
 var _wd=document.getElementById('walkDate'); if(_wd)_wd.addEventListener('input',function(e){walkDate=e.target.value;});
-loadState();
+if(!loadState()){walkId='w'+Date.now();walkNo=String(loadArchive().length+1);var _wni=document.getElementById('walkNo');if(_wni)_wni.value=walkNo;}
 updateWtBadge();
 updateStartBtn();
 renderValueBadges();
 renderRooms();
+renderArchive();
+var _obK=document.getElementById('obKids'); if(_obK)_obK.addEventListener('input',function(e){if(rooms[current])rooms[current].kids=e.target.value;var t=kid90txt(e.target.value);var a=document.getElementById('obKid90');if(a)a.textContent=t;var ck=document.getElementById('ckKids');if(ck)ck.value=e.target.value;var b=document.getElementById('ckKid90');if(b)b.textContent=t;});
+var _ckK=document.getElementById('ckKids'); if(_ckK)_ckK.addEventListener('input',function(e){if(rooms[current])rooms[current].kids=e.target.value;var t=kid90txt(e.target.value);var a=document.getElementById('ckKid90');if(a)a.textContent=t;var ob=document.getElementById('obKids');if(ob)ob.value=e.target.value;var b=document.getElementById('obKid90');if(b)b.textContent=t;});
 saveState();
 setInterval(saveState,2000);
 window.addEventListener('pagehide',saveState);
 window.addEventListener('beforeunload',saveState);
 document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden')saveState();});
-var _fb=document.getElementById('freshBtn'); if(_fb)_fb.addEventListener('click',function(){if(window.confirm('Clear all saved data and start a new walkthrough on this device?'))resetAll();});
+var _fb=document.getElementById('freshBtn'); if(_fb)_fb.addEventListener('click',function(){if(window.confirm('Save this walkthrough and start a new one?'))startNewWalkthrough();});
 </script>
 </body>
 </html>
